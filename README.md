@@ -1,70 +1,119 @@
-# Getting Started with Create React App
+# University of Dunaújváros — AI Chatbot
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A production-ready AI assistant for the [University of Dunaújváros (UNIDUNA)](https://www.uniduna.hu/en/), built with React and powered by AWS Bedrock. It answers questions about admissions, programmes, campus life, scholarships, and more — using the university's own documents as its knowledge source.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+- **RAG-powered answers** via AWS Bedrock Knowledge Base
+- **Source citations** shown beneath each response
+- **Suggested questions** panel accessible anytime from the input bar
+- **Clear conversation** with confirmation prompt
+- **Fully responsive** — spans the entire viewport, mobile-friendly
+- **Uniduna branding** — navy/blue palette, shield icon, institutional typography
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Tech Stack
 
-### `npm test`
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, plain CSS-in-JS |
+| AI / RAG | AWS Bedrock — Claude Sonnet 4 (`eu.anthropic.claude-sonnet-4-20250514-v1:0`) |
+| Knowledge Base | AWS Bedrock Knowledge Base + S3 |
+| API | AWS API Gateway + Lambda (Python) |
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## Getting Started
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Prerequisites
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- Node.js 18+
+- An AWS account with Bedrock access in `eu-central-1`
+- A deployed Lambda + API Gateway (see [Backend Setup](#backend-setup))
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Installation
 
-### `npm run eject`
+```bash
+git clone https://github.com/BTAG16/university-chatbot.git
+cd university-chatbot
+npm install
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Environment Variables
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Copy the example file and fill in your values:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```bash
+cp .env.example .env
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+| Variable | Description |
+|---|---|
+| `REACT_APP_API_URL` | Your API Gateway endpoint URL |
 
-## Learn More
+### Run Locally
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+npm start
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Opens at `http://localhost:3000`.
 
-### Code Splitting
+### Build for Production
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```bash
+npm run build
+```
 
-### Analyzing the Bundle Size
+Output goes to `/build` — deploy that folder to any static host (S3, Amplify, Vercel, etc.).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+---
 
-### Making a Progressive Web App
+## Backend Setup
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+The Lambda function requires the following environment variables set in AWS:
 
-### Advanced Configuration
+| Variable | Description |
+|---|---|
+| `ACCOUNT_ID` | Your AWS account ID |
+| `REGION` | AWS region (e.g. `eu-central-1`) |
+| `KNOWLEDGE_BASE_ID` | Bedrock Knowledge Base ID |
+| `UNIVERSITY_NAME` | Display name used in the system prompt |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+The Lambda execution role must have:
+- `bedrock:Retrieve` on the Knowledge Base
+- `bedrock:InvokeModel` on the inference profile ARN
 
-### Deployment
+### Inference Profile
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+The chatbot uses the EU cross-region inference profile for Claude Sonnet 4:
 
-### `npm run build` fails to minify
+```
+arn:aws:bedrock:eu-central-1:{ACCOUNT_ID}:inference-profile/eu.anthropic.claude-sonnet-4-20250514-v1:0
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Verify it is listed under **Bedrock → Cross-region inference** in your AWS Console before deploying.
+
+---
+
+## Project Structure
+
+```
+university-chatbot/
+├── public/
+├── src/
+│   ├── App.js                  # Root component
+│   └── UniversityChatbot.jsx   # Chatbot UI + API integration
+├── .env                        # Local env vars (gitignored)
+├── .env.example                # Env var template
+└── package.json
+```
+
+---
+
+## License
+
+This project is private and intended for use by the University of Dunaújváros.
