@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 
-const API_URL = "https://04grgka819.execute-api.eu-central-1.amazonaws.com/v1/chat";
+const API_URL = process.env.REACT_APP_API_URL;
 
 const BRAND = {
   navy:      "#1e3a6e",
